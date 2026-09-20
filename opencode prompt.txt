@@ -1,0 +1,451 @@
+AvrupaRotam projesini devralan kıdemli full-stack geliştirici, ürün tasarımcısı ve kalite sorumlusu olarak çalış.
+
+Çalışma dizini: D:\AvrupaRotam
+
+GÖREV
+Mevcut kaynak kodunu incele; üyelik, CV yükleme, başvuru yönetimi, ilan güncelleme, iki dil ve tasarım eksiklerini tamamla. Windows üzerinde çalışan, test edilmiş ve film çekiminde kullanılabilecek profesyonel bir uygulama teslim et.
+
+Yalnızca analiz veya öneri sunma: gerekli kodu yaz, çalıştır, hataları gider ve sonuçları doğrula. Mevcut işlevleri koru. Bitmemiş işlemleri tamamlanmış gibi raporlama.
+
+1. ÇALIŞMAYA BAŞLAMA
+
+Önce şu dosyaları ve ilgili bağımlılıklarını incele:
+- README_OPENCODE.md
+- OPENCODE_PROMPT.md
+- package.json ve kilit dosyası
+- vite.config.ts
+- app/
+- components/career-platform.tsx
+- components/member-dashboard.tsx
+- app/chatgpt-auth.ts
+- db/
+- lib/jobs.ts
+- JOB_REFRESH_PROCEDURE.md
+- .openai/hosting.json
+
+Mevcut işlevleri, eksikleri ve ortama bağımlılıkları belirle.
+Kısa bir uygulama planı oluştur ve hemen uygulamaya başla.
+
+Git varsa mevcut değişiklikleri koru ve ayrı geliştirme dalı kullan.
+Git yoksa yerel depo oluştur.
+Dosyaları silerek veya projeyi sıfırdan oluşturarak ilerleme.
+Mevcut kilit dosyasını ve çalışan mimariyi mümkün olduğunca koru.
+
+İlk olarak bağımlılık kurulumu, derleme ve tip kontrolünü çalıştır; başlangıç hatalarını kaydet. Windows PowerShell uyumluluğunu esas al.
+
+2. ÜRÜN KİMLİĞİ VE KULLANIM AMACI
+
+Bu site filmde kullanılacak bir Avrupa iş ve kariyer danışmanlığı platformudur. Çekimde gerçekçi görünmeli; uygulanan üyelik ve kayıt işlemleri teknik olarak da çalışmalıdır.
+
+Türkçe marka: AvrupaRotam
+İngilizce marka: EuropeRoute
+
+Türkçe slogan:
+“Avrupa’daki işe, doğru rotayla.”
+
+İngilizce slogan:
+“The right route to your next job in Europe.”
+
+Görsel yön:
+- Ana renk: lacivert #0b1f33
+- İkincil renk: turkuaz #159b8c
+- Kontrollü yeşil vurgular
+- Güçlü tipografi ve okunabilir başlıklar
+- Dengeli boşluklar ve tutarlı kartlar
+- Kurumsal, sade ve özgün görünüm
+- Mobil, tablet ve masaüstünde eksiksiz kullanım
+
+Kullanıcıya görünen alanlarda şu tür ifadeler bulunmasın:
+demo, deneme, prototip, örnek, sample, placeholder, yayın öncesi, test sitesi.
+
+Bu yasak geliştirici belgeleri ve teknik test kodları için geçerli değildir.
+
+Daha önce kaldırılan sarı ilan bilgilendirme bandını geri ekleme.
+Gerçek olmayan izin numarası, resmî yetki, işveren, müşteri yorumu, başarı oranı veya iş/vize garantisi üretme.
+
+3. İKİ DİLİN EKSİKSİZ AYRILMASI
+
+Mevcut rotaları koru:
+- Türkçe ana sayfa: /
+- İngilizce ana sayfa: /en/
+- Türkçe hesap: /account
+- İngilizce hesap: /en/account
+
+Dil değişimi kullanıcının bulunduğu sayfanın karşılığına gitmeli.
+
+Aşağıdakilerin tamamını yerelleştir:
+- Menü ve butonlar
+- Formlar ve dosya seçme açıklamaları
+- Hata, boş durum ve başarı mesajları
+- Üyelik ve başvuru durumları
+- SSS ve kurumsal içerikler
+- Gizlilik ve kullanım sayfaları
+- Sayfa başlıkları ve açıklamaları
+- Erişilebilirlik etiketleri
+- Modal kapatma etiketleri
+- Tarih ve sayı biçimleri
+- Logo alternatif metinleri
+
+İngilizce arayüzde Türkçe metin veya Türkçe marka görseli bulunmasın.
+Kullanıcının adı, dosya adı veya kendi yazdığı içerik değiştirilmesin.
+Dil kontrollerinde kullanıcı verileriyle arayüz metinlerini ayır.
+
+HTML lang değeri sunucuda doğru üretilsin.
+Yalnızca istemci tarafında document.documentElement.lang değiştirmeye dayanma.
+İngilizce sayfa metadatasına Türkçe marka veya açıklama sızmasın.
+
+4. LOGO VE TASARIM
+
+Mevcut dosyaları incele:
+- AvrupaRotam-logo.png
+- public/logo-premium.png
+- Mevcut SVG logo
+
+Yeni PNG’yi değiştirmeden önce orijinalini koru.
+Kontrast, şeffaflık, kenar boşluğu, küçük ölçekte okunabilirlik ve açık/koyu zemin uyumunu kontrol et.
+Türkçe sürüme uygun ölçülerle entegre et.
+İngilizce sürümde aynı tasarım dilinde EuropeRoute kelime markası veya metinsiz simge kullan.
+Türkçe yazılı PNG’yi İngilizce sayfaya yerleştirme.
+
+Logo, favicon, mobil başlık ve footer birbiriyle tutarlı olsun.
+Raster dosyayı otomatik olarak kusursuz vektörmüş gibi tanıtma.
+Görsel üretim aracı yoksa mevcut varlıklarla temiz ve uygulanabilir bir çözüm üret.
+
+Mevcut marka karakterini koruyarak:
+- Başlık hiyerarşisini düzenle.
+- Dar ekran taşmalarını gider.
+- Ana metinde yaklaşık 16 px ve üzerini esas al.
+- Formların ve kartların hizalarını tutarlı yap.
+- Yeterli kontrast ve belirgin odak göstergeleri sağla.
+- Gereksiz animasyon ve dekorasyonu azalt.
+- prefers-reduced-motion tercihine uy.
+
+5. BAĞIMSIZ ÜYELİK VE OTURUM
+
+Mevcut kimlik sistemi Sites tarafından iletilen başlıklara ve
+/signin-with-chatgpt akışına bağlıdır.
+Bunların OpenCode/Windows ortamında kendiliğinden çalışacağını varsayma.
+
+Mevcut teknolojiyle uyumlu, bakımı sürdürülen bir kimlik doğrulama çözümü seç.
+Gerekli güncel API ve paket davranışlarını resmî belgelerden doğrula.
+Özel kriptografi veya doğrulanmamış kimlik doğrulama algoritması yazma.
+
+Şu akışları tamamla:
+- Üye kaydı
+- Giriş
+- Çıkış
+- Oturum süresi dolması
+- Profil görüntüleme ve düzenleme
+- Gerekliyse e-posta doğrulama
+- Parolalı model seçilirse güvenli parola sıfırlama
+- Hesap silme ve ilgili veri temizliği
+
+Oturumlar sunucuda doğrulansın.
+Dışarıdan gönderilen kullanıcı kimliği başlıklarına güvenme.
+Kullanıcı kimliğini formdan gelen userId üzerinden belirleme.
+
+Üretimde:
+- Güvenli ve HttpOnly oturum çerezleri
+- Uygun SameSite ayarı
+- CSRF koruması
+- Giriş ve kayıt için oran sınırlaması
+- Güvenli oturum sonlandırma
+- Kullanıcı varlığını gereksiz yere açığa çıkarmayan hata mesajları
+
+Geliştirme kimlik adaptörü gerekirse açık bir geliştirme ayarına bağlı olsun.
+Üretim ortamında çalışması teknik olarak engellensin.
+Geliştirme adaptörünü gerçek bağımsız üyelik tamamlandı diye raporlama.
+
+Harici servis hesabı veya anahtar gerekiyorsa:
+- Anahtarı sohbetten isteme.
+- .env.example içine yalnızca değişken adlarını ekle.
+- Gerçek değerleri Git dışında tut.
+- Entegrasyon kodunu ve kurulum adımlarını tamamla.
+- Gerçek servis olmadan doğrulanamayan adımı açıkça belirt.
+- Kullanıcının izni olmadan ücretli servis açma.
+
+6. VERİTABANI VE DOSYA DEPOLAMA
+
+Mevcut D1/R2 yapısını ve Drizzle şemasını değerlendir.
+Windows üzerinde çalışabilen yerel depolama düzeni kur.
+Üretim ortamına geçiş yolunu açıkça belgele.
+
+D1/R2 korunuyorsa:
+- Yerel binding ve migration kurulumunu tamamla.
+- Verilerin uygulama yeniden başlatıldığında kalıcı kaldığını doğrula.
+- Üretim kaynaklarını yerel geliştirme kaynaklarından ayır.
+
+Uyumsuzluk nedeniyle farklı adaptör gerekiyorsa:
+- Değişikliği gerekçelendir.
+- Mevcut veri modelini koru.
+- Taşıma ve geri dönüş yolunu belgele.
+
+Üyelik, CV ve başvurular için localStorage veya bellek içi nesneleri asıl kayıt sistemi olarak kullanma.
+
+Uygulanmış migration dosyalarını değiştirme.
+Yeni şema değişiklikleri için yeni migration oluştur.
+
+7. ÜYELİKTE VE ÖN BAŞVURUDA ZORUNLU CV
+
+Üyelik tamamlanırken CV zorunlu olsun.
+Her ön başvuru için de ayrı CV yükleme alanı zorunlu olsun.
+CV olmadan istemci ve sunucu kaydı reddetsin.
+
+Dosya kuralları:
+- PDF, DOC veya DOCX
+- En fazla 5 MB
+- Boş dosya reddi
+- Uzantı, MIME ve içerik uyumu kontrolü
+- İstek gövdesi boyut sınırı
+- Güvenli, sunucunun ürettiği depolama anahtarı
+
+Yalnızca accept niteliğine veya tarayıcının MIME bilgisine güvenme.
+DOCX doğrulamasında yalnızca ZIP imzasını yeterli sayma.
+Dosyayı çalıştırma veya kullanıcıdan gelen yolu dosya yolu olarak kullanma.
+
+CV dosyaları özel depolamada saklansın.
+Herkese açık tahmin edilebilir dosya URL’leri üretme.
+İndirme isteğinde sahiplik kontrolü yap.
+İndirme yanıtlarında güvenli Content-Disposition ve nosniff kullan.
+
+Şu işlevleri tamamla:
+- Yükleme sırasında ilerleme veya işlem durumu
+- Seçilen dosya adını ve boyutunu gösterme
+- Göndermeden önce dosya değiştirme
+- Profil CV’sini güncelleme
+- Yetkili CV indirme
+- İptal ve hata durumları
+- Eski/orphan dosyaların güvenli temizliği
+
+Profil CV’si güncellendiğinde eski başvurunun belge kaydını istemeden bozma.
+Başvuruya ait CV’nin sürüm ilişkisini açık tut.
+Dosya yüklenip veritabanı kaydı başarısız olursa telafi temizliği yap.
+Kaydın tamamı başarılı olmadan başarı mesajı gösterme.
+
+8. ÖN BAŞVURU VE ÜYE PANELİ
+
+Üye panelinde:
+- Profil bilgileri
+- Kayıtlı CV bilgisi
+- CV değiştirme ve indirme
+- Ön başvuru geçmişi
+- Pozisyon, ülke, tarih ve durum
+- Başvuru detayları
+- Uygun durumda başvuruyu geri çekme
+
+Genel ön başvuruda hedef ülke tercihi alınabilsin.
+İlan başvurusunda pozisyonu yalnızca istemciden gelen başlıkla tanımlama;
+sunucuda doğrulanabilen sabit ilan kimliği kullan.
+
+Durumlar bir veri modeline bağlı olsun:
+- Alındı
+- İnceleniyor
+- Ek bilgi bekleniyor
+- Görüşme
+- Tamamlandı
+- Geri çekildi
+
+Durumları gerçek işlem olmadan otomatik ilerletme.
+Kullanıcı başkasının kayıtlarına veya CV’sine erişemesin.
+Tekrar tıklama ve ağ tekrarlarında aynı başvurunun yanlışlıkla çoğalmasını engelle.
+Hata durumunda formdaki bilgileri koru.
+
+Yönetim paneli mevcut değilse bunu gizleme.
+Tam kapsamlı CRM eklemek yerine başvuru durumlarını yönetmek için gereken en küçük yetkili operasyon çözümünü belirle ve uygula.
+
+9. İLAN VERİSİ VE RESMÎ KAYNAKLAR
+
+Odak ülkeler:
+- Almanya
+- Avusturya
+- Hollanda
+- Polonya
+
+Odak sektörler:
+- Sağlık
+- Lojistik
+- Üretim
+- Teknik ve inşaat
+- Bilişim
+
+Öncelikli kaynaklar:
+- EURES
+- Bundesagentur für Arbeit
+- Make it in Germany
+- AMS
+- UWV / Werk.nl
+- ePraca
+
+Mevcut lib/jobs.ts kayıtlarını yeniden doğrula.
+Eski kayıtların bugün hâlâ açık olduğunu varsayma.
+
+Veri modelinde ayır:
+- Tekil iş ilanı
+- Genel resmî arama bağlantısı
+
+Genel arama sayfasını tekil açık ilan gibi sayma veya etiketleme.
+
+Hedef:
+- Her odak ülke için en az iki doğrulanmış tekil ilan
+- Her odak sektör için en az iki doğrulanmış tekil ilan
+
+Aynı ilan iki kapsama da katkıda bulunabilir.
+Her ülke × her sektör kombinasyonunda iki ilan zorunluluğu yoktur.
+
+Yeterli ilan bulunamazsa ilan üretme.
+Eksikliği bakım raporunda belirt.
+Maaş, vize desteği, konaklama ve denklik şartlarını kaynak yoksa ekleme.
+
+İlanlarda uygun alanları tut:
+- Sabit iç kimlik
+- Kaynak kurum ve kaynak kimliği
+- Kaynak URL
+- Ülke, şehir, sektör
+- Yerelleştirilmiş başlık ve açıklama
+- Yayın ve son başvuru tarihi varsa
+- Son başarılı kontrol zamanı
+- Durum ve doğrulama kanıtı
+
+Türkçe ve İngilizce kayıtlar aynı ilan kimliğine bağlı olsun.
+İlan sayıları veriden hesaplansın.
+“Daha fazla açık pozisyon” bağlantısı bulunsun.
+İş veya vize garantisi verme.
+
+10. GERÇEK ARKA PLAN İLAN YENİLEME
+
+ChatGPT’deki eski otomasyon ZIP ile taşınmaz.
+Bağımsız bir zamanlanmış görev uygula.
+
+Varsayılan sıklık: günde bir.
+Sıklık yapılandırılabilir olsun.
+Windows Görev Zamanlayıcı için kurulum ve kaldırma betikleri hazırla.
+Seçilen üretim ortamı için karşılık gelen zamanlama yöntemini belgele.
+Tarayıcı veya kullanıcı oturumunun açık olmasına bağlı olmasın.
+
+Görev:
+1. Kaynakları kontrollü hızda ziyaret et.
+2. HTTP durumunu ve sayfa içeriğini değerlendir.
+3. Son başvuru tarihini kontrol et.
+4. Doğrulanmış kapanan ilanları arşivle.
+5. Aynı ülke ve tercihen aynı sektörden açık ilan bul.
+6. Yeni kaydı doğrula.
+7. İki dilde aynı veri ilişkisini koru.
+8. Sonuçları atomik ve tekrarlanabilir biçimde kaydet.
+9. Çalışma raporu üret.
+
+HTTP 200 tek başına “açık” kanıtı değildir.
+403, 429, 5xx ve zaman aşımını “kapalı” sayma.
+Belirsiz kaydı açıkmış gibi yeniden doğrulama.
+Kesin kapanmış kaydı yeni ilan bulunamadı diye açık listede bırakma.
+
+Timeout, kontrollü yeniden deneme, geri çekilme, iş kilidi,
+tekilleştirme ve hata raporu ekle.
+Kaynakların erişim şartlarına uy.
+CAPTCHA veya erişim korumalarını aşma.
+
+Son başarılı kontrol zamanı yalnızca gerçekten tamamlanan doğrulamadan gelsin.
+İçerik değişmediyse gereksiz yeni sürüm veya kayıt oluşturma.
+
+11. DANIŞMANLIK VE KURUMSAL İÇERİK
+
+Şu bilgileri her iki dilde açıkça koru:
+- Vasıflı ve vasıfsız çalışanlara danışmanlık verilir.
+- Destek personeli ve yeni başlayanlar değerlendirilebilir.
+- Danışmanlık yalnızca listelenen mesleklerle sınırlı değildir.
+- Diğer Avrupa ülkeleri uygun profile göre değerlendirilebilir.
+- Uygunluk; dil, deneyim, meslek, çalışma izni ve işveren koşullarına bağlıdır.
+
+Önceki geçişte kaybolmuşsa geri getir:
+- Ülke bilgileri
+- Beş adımlı başvuru süreci
+- Güven ilkeleri
+- Sık sorulan sorular
+- İlgili resmî kaynak bağlantıları
+
+Gizlilik ve kullanım bağlantıları alakasız sayfa çapalarına gitmesin.
+İki dilde gerçek içerik sayfaları oluştur.
+Bilinmeyen şirket veya hukuki yetki bilgilerini uydurma.
+Doğrulanması gereken işletme bilgilerini geliştirici belgesinde listele.
+
+Form bilgilendirmesi ile rızayı gerektiği yerde ayrı ele al.
+Onayları yalnızca tarayıcı checkbox kontrolüne bırakma.
+Gerekli sürüm ve zaman kayıtlarını sunucuda tut.
+Bu içerikleri hukuken onaylanmış diye nitelendirme.
+
+12. FİLM ÇEKİMİ İÇİN TUTARLILIK
+
+Kullanıcı arayüzüne “film modu” etiketi eklemeden,
+sunucu yapılandırmasına bağlı bir çekim ayarı hazırla.
+
+Bu ayar:
+- Otomatik ilan güncellemesini durdurabilsin.
+- Onaylanmış veri görünümünü sabitleyebilsin.
+- Çekim dışında normal çalışmaya dönebilsin.
+- Gerçek kullanıcı verilerini çekim verileriyle karıştırmasın.
+- Kimlik doğrulamayı ve dosya güvenliğini devre dışı bırakmasın.
+
+Çekim verileri gerekiyorsa ayrı ortamda ve kişisel veri içermeden kullan.
+Kurgusal verileri gerçek resmî kaynağın ilanıymış gibi ilişkilendirme.
+Varsayılan uygulama davranışını sessizce değiştirme.
+
+13. TEST VE KABUL KRİTERLERİ
+
+Aşağıdaki akışları doğrulamadan tamamlandı deme:
+
+- Üyelik oluşturma
+- CV olmadan kayıt reddi
+- Geçerli CV yükleme
+- Yanlış tür, bozuk ve aşırı büyük dosya reddi
+- Çıkış ve tekrar giriş
+- Kalıcı profil ve CV erişimi
+- Profil/CV güncelleme
+- Ön başvuru oluşturma
+- Başvuru geçmişi
+- Başkasının kayıtlarına erişimin reddi
+- Yetkisiz dosya indirme reddi
+- Veritabanı/depolama hatasında doğru durum
+- Çifte gönderim koruması
+- Türkçe ve İngilizce dil ayrımı
+- Mobil ve masaüstü görünüm
+- Klavye kullanımı ve modal odak yönetimi
+- İlan kapanması, belirsiz kaynak ve yenisiyle değiştirme
+- Zamanlanmış görevin tarayıcı kapalıyken çalışması
+
+Anlamlı birim, entegrasyon ve uçtan uca testler oluştur.
+Yalnızca mevcut uygulamayı taklit eden değersiz testler yazma.
+Test verilerini üretim verilerinden ayır.
+İlgili derleme, tip kontrolü ve test komutlarını package.json içine ekle.
+
+14. BELGELER VE TESLİM
+
+Şunları güncelle veya oluştur:
+- README_OPENCODE.md
+- .env.example
+- Windows kurulum ve başlatma yönergeleri
+- Veritabanı migration yönergeleri
+- Kimlik ve depolama kurulum yönergeleri
+- Zamanlanmış görev kurulum/kaldırma betikleri
+- JOB_REFRESH_PROCEDURE.md
+- Yedekleme ve geri yükleme yönergeleri
+- Çekim ayarı açıklaması
+- Kısa değişiklik günlüğü
+
+Belgelerde gerçek çalışan komutları kullan.
+Eski dist/app.js yollarını güncel mimariye göre düzelt.
+Parolaları, anahtarları, oturumları ve CV dosyalarını Git’e ekleme.
+
+Uygulama tamamlanınca kısa bir rapor ver:
+1. Tamamlanan özellikler.
+2. Çalıştırılan testler ve sonuçları.
+3. Yerel başlatma komutları.
+4. Harici servis nedeniyle doğrulanamayan adımlar.
+5. Kalan gerçek eksikler.
+
+Kullanıcı açıkça istemedikçe canlı siteyi yayımlama, alan adını
+ve erişim politikasını değiştirme veya ücretli servis açma.
+
+Başarı ölçütü “10/10” ifadesini kullanmak değil;
+çalışan akışlar, ölçülebilir kalite, eksiksiz iki dil,
+güvenli veri yönetimi ve doğrulanmış test sonuçlarıdır.
+
+Şimdi projeyi incele ve uygulamaya başla.
