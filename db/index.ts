@@ -1,8 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
 
 export function getSupabase() {
-  const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_SECRET_KEY;
+  const runtimeEnv = process.env;
+const url = runtimeEnv["SUPABASE_URL"];
+const key = runtimeEnv["SUPABASE_SECRET_KEY"];
 
   if (!url || !key) {
     throw new Error("Missing SUPABASE_URL or SUPABASE_SECRET_KEY");
