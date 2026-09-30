@@ -1,4 +1,4 @@
-import { env } from "cloudflare:workers";
+import { getSupabase } from "./index";
 
 export type ProfileInput = {
   id: string;
@@ -14,38 +14,28 @@ export type ProfileInput = {
 };
 
 export async function upsertProfile(input: ProfileInput) {
+  const supabase = getSupabase();
   const now = new Date().toISOString();
-  return env.DB.prepare(
-    `INSERT INTO profiles
-      (id, email, full_name, phone, occupation, locale, cv_key, cv_name, cv_type, cv_size, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-     ON CONFLICT(id) DO UPDATE SET
-      email = excluded.email,
-      full_name = excluded.full_name,
-      phone = excluded.phone,
-      occupation = excluded.occupation,
-      locale = excluded.locale,
-      cv_key = excluded.cv_key,
-      cv_name = excluded.cv_name,
-      cv_type = excluded.cv_type,
-      cv_size = excluded.cv_size,
-      updated_at = excluded.updated_at`,
-  )
-    .bind(
-      input.id,
-      input.email,
-      input.fullName,
-      input.phone,
-      input.occupation,
-      input.locale,
-      input.cvKey,
-      input.cvName,
-      input.cvType,
-      input.cvSize,
-      now,
-      now,
-    )
-    .run();
+
+  const { error } = await supabase.from("profiles").upsert(
+    {
+      id: input.id,
+      email: input.email,
+      full_name: input.fullName,
+      phone: input.phone,
+      occupation: input.occupation,
+      locale: input.locale,
+      cv_key: input.cvKey,
+      cv_name: input.cvName,
+      cv_type: input.cvType,
+      cv_size: input.cvSize,
+      created_at: now,
+      updated_at: now,
+    },
+    { onConflict: "id" },
+  );
+
+  if (error) throw error;
 }
 
 export async function createApplication(input: {
@@ -60,41 +50,71 @@ export async function createApplication(input: {
   cvType: string;
   cvSize: number;
 }) {
-  return env.DB.prepare(
-    `INSERT INTO applications
-      (id, user_id, job_title, country, profession, message, cv_key, cv_name, cv_type, cv_size, status, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'received', ?)`,
-  )
-    .bind(
-      input.id,
-      input.userId,
-      input.jobTitle,
-      input.country,
-      input.profession,
-      input.message,
-      input.cvKey,
-      input.cvName,
-      input.cvType,
-      input.cvSize,
-      new Date().toISOString(),
-    )
-    .run();
+  const supabase = getSupabase();
+
+  const { error } = await supabase.from("applications").insert({
+    id: input.id,
+    user_id: input.userId,
+    job_title: input.jobTitle,
+    country: input.country,
+    profession: input.profession,
+    message: input.message,
+    cv_key: input.cvKey,
+    cv_name: input.cvName,
+    cv_type: input.cvType,
+    cv_size: input.cvSize,
+    status: "received",
+    created_at: new Date().toISOString(),
+  });
+
+  if (error) throw error;
 }
 
 export async function getMemberOverview(userId: string) {
-  const profile = await env.DB.prepare(
-    `SELECT id, email, full_name AS fullName, phone, occupation, locale,
-            cv_name AS cvName, updated_at AS updatedAt
-     FROM profiles WHERE id = ?`,
-  )
-    .bind(userId)
-    .first();
-  const applications = await env.DB.prepare(
-    `SELECT id, job_title AS jobTitle, country, profession, status,
-            cv_name AS cvName, created_at AS createdAt
-     FROM applications WHERE user_id = ? ORDER BY created_at DESC LIMIT 20`,
-  )
-    .bind(userId)
-    .all();
-  return { profile, applications: applications.results };
+  const supabase = getSupabase();
+
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select(
+      "id,email,full_name,phone,occupation,locale,cv_name,updated_at",
+    )
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (profileError) throw profileError;
+
+  const { data: applications, error: applicationsError } = await supabase
+    .from("applications")
+    .select(
+      "id,job_title,country,profession,status,cv_name,created_at",
+    )
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(20);
+
+  if (applicationsError) throw applicationsError;
+
+  return {
+    profile: profile
+      ? {
+          id: profile.id,
+          email: profile.email,
+          fullName: profile.full_name,
+          phone: profile.phone,
+          occupation: profile.occupation,
+          locale: profile.locale,
+          cvName: profile.cv_name,
+          updatedAt: profile.updated_at,
+        }
+      : null,
+    applications: (applications ?? []).map((application) => ({
+      id: application.id,
+      jobTitle: application.job_title,
+      country: application.country,
+      profession: application.profession,
+      status: application.status,
+      cvName: application.cv_name,
+      createdAt: application.created_at,
+    })),
+  };
 }

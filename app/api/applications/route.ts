@@ -1,4 +1,4 @@
-import { env } from "cloudflare:workers";
+import { getStore } from "@netlify/blobs";
 import { getChatGPTUser } from "@/app/chatgpt-auth";
 import { createApplication } from "@/db/repository";
 
@@ -21,9 +21,14 @@ export async function POST(request: Request) {
     }
     const id = crypto.randomUUID();
     const cvKey = `applications/${user.id}/${id}-${safeName(cv.name)}`;
-    await env.BUCKET.put(cvKey, cv.stream(), {
-      httpMetadata: { contentType: cv.type },
-      customMetadata: { ownerId: user.id, purpose: "application-cv" },
+    const uploads = getStore("application-cvs");
+
+    await uploads.set(cvKey, cv, {
+      metadata: {
+        contentType: cv.type, 
+        ownerld: user.id,
+        purpose: "application-cv",
+      },
     });
     await createApplication({
       id,

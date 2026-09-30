@@ -1,5 +1,7 @@
 import vinext from "vinext";
 import { defineConfig } from "vite";
+import { nitro } from "nitro/vite";
+import tailwindcss from "@tailwindcss/vite";
 import hostingConfig from "./.openai/hosting.json";
 import { sites } from "./build/sites-vite-plugin";
 
@@ -52,9 +54,10 @@ export default defineConfig(async () => {
         : {}),
     },
     plugins: [
+      tailwindcss(),
       vinext(),
-      sites(),
-      cloudflare({
+      process.env.NETLIFY=="true"?undefined : sites(),
+      process.env.NETLIFY=="true"? nitro() : cloudflare({
         viteEnvironment: { name: "rsc", childEnvironments: ["ssr"] },
         inspectorPort: false,
         config: localBindingConfig,

@@ -1,25 +1,16 @@
-import { env } from "cloudflare:workers";
-import { drizzle } from "drizzle-orm/d1";
 import { createClient } from "@supabase/supabase-js";
-import * as schema from "./schema";
 
-export function getDb() {
-  if (!env.DB) {
-    throw new Error(
-      "Cloudflare D1 binding `DB` is unavailable. Set the `d1` field in .openai/hosting.json to `DB` or let your control plane inject the real binding values before using the database."
-    );
+export function getSupabase() {
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_ANON_KEY;
+
+  if (!url || !key) {
+    throw new Error("Missing SUPABASE_URL or SUPABASE_ANON_KEY");
   }
 
-  return drizzle(env.DB, { schema });
+  return createClient(url, key);
 }
 
-// Supabase client for auth, storage, and REST API
-export const supabase = createClient(
-  env.SUPABASE_URL,
-  env.SUPABASE_ANON_KEY
-);
-
-// Types for Supabase
 export type SupabaseProfile = {
   id: string;
   email: string;

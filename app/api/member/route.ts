@@ -1,4 +1,4 @@
-import { env } from "cloudflare:workers";
+import { getStore } from "@netlify/blobs";
 import { getChatGPTUser } from "@/app/chatgpt-auth";
 import { upsertProfile } from "@/db/repository";
 
@@ -24,9 +24,14 @@ export async function POST(request: Request) {
     const occupation = required(form, "occupation");
     const locale = form.get("locale") === "en" ? "en" : "tr";
     const cvKey = `members/${user.id}/${crypto.randomUUID()}-${safeName(cv.name)}`;
-    await env.BUCKET.put(cvKey, cv.stream(), {
-      httpMetadata: { contentType: cv.type },
-      customMetadata: { ownerId: user.id, purpose: "membership-cv" },
+    const uploads = getStore("member-cvs");
+
+    await uploads.set(cvKey, cv, {
+      metadate: {
+        contentType: cv.type,
+        ownerId: user.id,
+        purpose: "membership-cv",
+      }
     });
     await upsertProfile({
       id: user.id,
