@@ -20,6 +20,7 @@
     "@netlify/blobs": "^11.1.2",
     "@netlify/database": "^2.0.1",
     "@shadcn/react": "^0.3.0",
+    "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.117.2",
     "@tailwindcss/vite": "^4.3.3",
     "class-variance-authority": "0.7.1",

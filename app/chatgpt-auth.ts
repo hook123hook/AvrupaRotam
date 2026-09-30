@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getSupabase } from "@/db";
+import { getSupabaseAuth } from "@/lib/supabase-server";
 
 export type ChatGPTUser = {
   id: string;
@@ -9,7 +9,7 @@ export type ChatGPTUser = {
 };
 
 export async function getChatGPTUser(): Promise<ChatGPTUser | null> {
-  const supabase = getSupabase();
+  const supabase = await getSupabaseAuth();
 
   const {
     data: { user },

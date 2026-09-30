@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     const uploads = getStore("member-cvs");
 
     await uploads.set(cvKey, cv, {
-      metadate: {
+      metadata: {
         contentType: cv.type,
         ownerId: user.id,
         purpose: "membership-cv",
