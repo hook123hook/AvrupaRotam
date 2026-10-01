@@ -117,4 +117,52 @@ export async function getMemberOverview(userId: string) {
       createdAt: application.created_at,
     })),
   };
+}export async function getMemberCv(userId: string) {
+  const supabase = getSupabase();
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("cv_key,cv_name,cv_type,cv_size")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (error) throw error;
+
+  return data
+    ? {
+        cvKey: data.cv_key,
+        cvName: data.cv_name,
+        cvType: data.cv_type,
+        cvSize: data.cv_size,
+      }
+    : null;
+}
+
+export async function updateMemberCv(input: {
+  userId: string;
+  previousCvKey: string;
+  cvKey: string;
+  cvName: string;
+  cvType: string;
+  cvSize: number;
+}) {
+  const supabase = getSupabase();
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .update({
+      cv_key: input.cvKey,
+      cv_name: input.cvName,
+      cv_type: input.cvType,
+      cv_size: input.cvSize,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", input.userId)
+    .eq("cv_key", input.previousCvKey)
+    .select("id")
+    .maybeSingle();
+
+  if (error) throw error;
+
+  return data !== null;
 }
