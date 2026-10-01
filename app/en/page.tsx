@@ -1,6 +1,6 @@
 import { CareerPlatform, type PlatformCopy } from "@/components/career-platform";
 import { chatGPTSignInPath, getChatGPTUser } from "@/app/chatgpt-auth";
-import { jobsEn } from "@/lib/jobs";
+import { getPublishedJobs } from "@/lib/jobs";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +10,7 @@ const copy: PlatformCopy = {
   eyebrow:"Transparent European career platform", title:"Your next job in Europe,", titleAccent:"on the right route.", lead:"Verifiable opportunities, profile advisory and secure application management for skilled and unskilled workers.",
   viewJobs:"View open roles ↓", generalApply:"General application", statCountries:"focus countries", statProfiles:"profile advisory", statOpportunities:"current opportunities",
   routeTitle:"Filter your route", routeText:"Find open positions by country and field.", all:"All", country:"Country", sector:"Field", show:"Show opportunities →", assessment:"Applications are assessed against profile and position requirements.",
-  memberEyebrow:"EuropeRoute membership", memberTitle:"Your career file in one place.", memberText:"Create your membership, upload your CV securely and track initial applications from your account.",
+  memberEyebrow:"AvrupaRotam membership", memberTitle:"Your career file in one place.", memberText:"Create your membership, upload your CV securely and track initial applications from your account.",
   memberBenefit1:"Personal candidate profile", memberBenefit2:"Secure CV record", memberBenefit3:"Application history", openMembership:"Create my membership",
   currentEyebrow:"Current open positions", currentTitle:"Opportunities you can verify", currentText:"Review each position at its official source and submit an initial application with your CV.",
   officialSource:"Official source", verify:"Verify at source", interested:"Initial application", moreTitle:"More positions are available.", moreText:"EURES and national employment portals publish new opportunities regularly.", eures:"EURES opportunities",
@@ -27,5 +27,6 @@ const copy: PlatformCopy = {
 
 export default async function EnglishHome() {
   const user = await getChatGPTUser();
-  return <CareerPlatform locale="en" brand="EuropeRoute" languageHref="/" jobs={jobsEn} copy={copy} user={user && { displayName:user.displayName, email:user.email }} signInPath={chatGPTSignInPath("/en/")} />;
+  const jobs = await getPublishedJobs("en");
+  return <CareerPlatform locale="en" brand="AvrupaRotam" languageHref="/" jobs={jobs} copy={copy} user={user && { displayName:user.displayName, email:user.email }} signInPath={chatGPTSignInPath("/en/")} />;
 }

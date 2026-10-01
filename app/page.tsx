@@ -1,6 +1,6 @@
 import { CareerPlatform, type PlatformCopy } from "@/components/career-platform";
 import { chatGPTSignInPath, getChatGPTUser } from "@/app/chatgpt-auth";
-import { jobsTr } from "@/lib/jobs";
+import { getPublishedJobs } from "@/lib/jobs";
 
 export const dynamic = "force-dynamic";
 
@@ -27,5 +27,6 @@ const copy: PlatformCopy = {
 
 export default async function Home() {
   const user = await getChatGPTUser();
-  return <CareerPlatform locale="tr" brand="AvrupaRotam" languageHref="/en/" jobs={jobsTr} copy={copy} user={user && { displayName:user.displayName, email:user.email }} signInPath={chatGPTSignInPath("/")} />;
+  const jobs = await getPublishedJobs("tr");
+  return <CareerPlatform locale="tr" brand="AvrupaRotam" languageHref="/en/" jobs={jobs} copy={copy} user={user && { displayName:user.displayName, email:user.email }} signInPath={chatGPTSignInPath("/")} />;
 }
