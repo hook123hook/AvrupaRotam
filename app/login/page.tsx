@@ -18,28 +18,36 @@ export default function LoginPage() {
     try {
       const supabase = getSupabaseBrowser();
 
-     const result = isSignUp
-  ? await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: window.location.origin + "/auth/callback",
-      },
-    })
-  : await supabase.auth.signInWithPassword({ email, password });
+      const result = isSignUp
+        ? await supabase.auth.signUp({
+            email: email.trim(),
+            password,
+            options: {
+              emailRedirectTo:
+                window.location.origin + "/auth/callback",
+            },
+          })
+        : await supabase.auth.signInWithPassword({
+            email: email.trim(),
+            password,
+          });
 
-if (result.error) {
-  setMessage(result.error.message);
-  return;
-}
+      if (result.error) {
+        setMessage(result.error.message);
+        return;
+      }
+
       if (!result.data.session) {
         setMessage(
-          "Kayıt alındı. E-postanızdaki doğrulama bağlantısına tıklayıp bu sayfadan giriş yapın.",
+          "Kayıt alındı. E-postanızdaki doğrulama bağlantısını aynı tarayıcıda açın. Gerekirse ardından giriş yapın.",
         );
         return;
       }
 
-      const target = new URLSearchParams(window.location.search).get("return_to");
+      const target = new URLSearchParams(
+        window.location.search,
+      ).get("return_to");
+
       const safeTarget =
         target?.startsWith("/") &&
         !target.startsWith("//") &&
@@ -56,50 +64,75 @@ if (result.error) {
   }
 
   return (
-    <main style={{ maxWidth: 420, margin: "60px auto", padding: 24 }}>
-      <h1>{isSignUp ? "Hesap oluştur" : "Giriş yap"}</h1>
+    <main className="auth-page">
+      <div className="auth-card">
+        <a className="back-link" href="/">
+          ← Ana sayfaya dön
+        </a>
 
-      <form onSubmit={submit}>
-        <label htmlFor="email">E-posta</label>
-        <input
-          id="email"
-          type="email"
-          autoComplete="email"
-          required
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          style={{ display: "block", width: "100%", margin: "8px 0 20px", padding: 12 }}
-        />
+        <h1 style={{ marginTop: 24 }}>
+          {isSignUp ? "Hesap oluştur" : "Giriş yap"}
+        </h1>
 
-        <label htmlFor="password">Şifre</label>
-        <input
-          id="password"
-          type="password"
-          minLength={8}
-          autoComplete={isSignUp ? "new-password" : "current-password"}
-          required
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          style={{ display: "block", width: "100%", margin: "8px 0 20px", padding: 12 }}
-        />
+        <form onSubmit={submit} aria-busy={busy}>
+          <label htmlFor="email">E-posta</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            placeholder="ornek@eposta.com"
+            required
+            disabled={busy}
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+          />
 
-        <button type="submit" disabled={busy}>
-          {busy ? "Bekleyin…" : isSignUp ? "Hesap oluştur" : "Giriş yap"}
+          <label htmlFor="password">Şifre</label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            minLength={isSignUp ? 8 : undefined}
+            autoComplete={
+              isSignUp ? "new-password" : "current-password"
+            }
+            placeholder={
+              isSignUp ? "En az 8 karakter" : "Şifrenizi girin"
+            }
+            required
+            disabled={busy}
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+          />
+
+          <button type="submit" disabled={busy}>
+            {busy
+              ? "Bekleyin…"
+              : isSignUp
+                ? "Hesap oluştur"
+                : "Giriş yap"}
+          </button>
+        </form>
+
+        <p role="status" aria-live="polite">
+          {message}
+        </p>
+
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => {
+            setIsSignUp(!isSignUp);
+            setMessage("");
+            setPassword("");
+          }}
+        >
+          {isSignUp
+            ? "Hesabım var, giriş yap"
+            : "Hesabım yok, hesap oluştur"}
         </button>
-      </form>
-
-      <p role="status">{message}</p>
-
-      <button
-        type="button"
-        disabled={busy}
-        onClick={() => {
-          setIsSignUp(!isSignUp);
-          setMessage("");
-        }}
-      >
-        {isSignUp ? "Hesabım var, giriş yap" : "Hesabım yok, hesap oluştur"}
-      </button>
+      </div>
     </main>
   );
 }
