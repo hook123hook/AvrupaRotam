@@ -72,6 +72,7 @@ export function CareerPlatform({
   const [country, setCountry] = useState(copy.all);
   const [sector, setSector] = useState(copy.all);
   const [selected, setSelected] = useState<Job | null>(null);
+  const [sourceJob, setSourceJob] = useState<Job | null>(null);
   const [memberOpen, setMemberOpen] = useState(false);
   const [applyOpen, setApplyOpen] = useState(false);
   const [memberState, setMemberState] = useState<FormState>("idle");
@@ -288,7 +289,8 @@ export function CareerPlatform({
               <p>
                 {tr
                 ? "Hizmet bedeli: 1.000 €. Üyelikten sonra XMR ödeme bilgilerini görüntüleyip dekontunuzu yükleyin. İlk dekontla 15 günlük geçici hizmet erişimi başlar. Bu sürede yönetici onayı verilmezse hizmet erişimi otomatik askıya alınır."
-                : "Service fee: €1,000. After registration, view the XMR payment details and upload your receipt. Your first receipt starts 15 days of temporary service access. Without administrator approval within that period, service access is automatically suspended."
+                : "Service fee: €1,000. After registration, view the XMR payment details and upload your receipt. Your first receipt starts 15 days of temporary service access. Without administrator approval within that period, service access is automatically suspended."}
+              </p>
             </div>
             <div className="member-benefits">
               <span>✓ {copy.memberBenefit1}</span>
@@ -355,9 +357,13 @@ export function CareerPlatform({
                   </div>
                   <footer>
                     <div>
-                      <a href={job.url} target="_blank" rel="noopener noreferrer">
-                        {copy.verify} ↗
-                      </a>
+                      <button
+                        type="button"
+                        onClick={() => setSourceJob(job)}
+                        style={{ color: "#0f766e", fontWeight: 600, cursor: "pointer" }}
+                      >
+                        {tr ? "İlan bilgilerini görüntüle" : "View listing details"}
+                      </button>
                       <div className="source">{job.source}</div>
                     </div>
                     <Button
@@ -447,6 +453,54 @@ export function CareerPlatform({
         </div>
       </footer>
 
+      <Dialog
+        open={sourceJob !== null}
+        onOpenChange={(open) => { if (!open) setSourceJob(null); }}
+      >
+        <DialogContent
+          className="dialog-card"
+          style={{ background: "#ffffff", color: "#172033", maxHeight: "85vh", overflowY: "auto" }}
+        >
+          <DialogHeader>
+            <DialogTitle>{sourceJob?.title}</DialogTitle>
+            <DialogDescription>
+              {tr ? "İlanın kayıtlı bilgileri" : "Stored listing details"}
+            </DialogDescription>
+          </DialogHeader>
+          {sourceJob && (
+            <div>
+              <dl style={{ display: "grid", gap: 16 }}>
+                {[
+                  [tr ? "Kaynak" : "Source", sourceJob.source],
+                  [tr ? "İşveren" : "Employer", sourceJob.company],
+                  [tr ? "Ülke" : "Country", sourceJob.country],
+                  [tr ? "Şehir" : "City", sourceJob.city],
+                  [tr ? "Sektör" : "Sector", sourceJob.sector],
+                  [tr ? "Çalışma şekli" : "Employment type", sourceJob.type],
+                ].map(([label, value]) => (
+                  <div key={label}>
+                    <dt style={{ fontSize: 13, color: "#475569" }}>{label}</dt>
+                    <dd style={{ margin: "4px 0 0", fontWeight: 600 }}>{value}</dd>
+                  </div>
+                ))}
+              </dl>
+              <p style={{ marginTop: 20, padding: 14, background: "#f1f5f9", borderRadius: 10 }}>
+                {tr
+                  ? "Bu bilgiler sitedeki kayıtlı listeden gösterilmektedir. Kaynağın anlık durumu henüz kontrol edilmemektedir; ilanın açık olduğu doğrulanmış değildir."
+                  : "These details come from the site's stored list. The source is not checked live yet; the listing has not been confirmed as open."}
+              </p>
+              <Button
+                type="button"
+                className="btn primary full"
+                onClick={() => { const job = sourceJob; setSourceJob(null); startApplication(job); }}
+              >
+                {copy.interested}
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={memberOpen} onOpenChange={setMemberOpen}>
         <DialogContent className="dialog-card">
           <DialogHeader>
@@ -519,8 +573,8 @@ export function CareerPlatform({
               {copy.applicationDescription}
               {" "}
               {tr
-                ? "Başvuru için 1.000 € hizmet bedelinin ödenmiş ve doğrulanmış olması gerekir."
-                : "Submitting an application requires verified payment of the €1,000 service fee."}
+                ? "Hizmet bedeli 1.000 €. İlk ödeme dekontuyla 15 günlük geçici başvuru erişimi açılır. Yönetici onayı verilmezse süre sonunda veya dekont reddedildiğinde hizmet erişimi askıya alınır."
+                : "The service fee is €1,000. Your first payment receipt enables temporary application access for 15 days. Service access is suspended if the receipt is rejected or approval is not granted before the deadline."}
             </DialogDescription>
           </DialogHeader>
 
