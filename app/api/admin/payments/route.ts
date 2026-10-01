@@ -49,7 +49,16 @@ export async function GET(request: Request) {
 
       if (error) throw error;
 
+      const { data: quote, error: quoteError } = await supabase
+        .from("member_payment_quotes")
+        .select("user_id,invoice_no,address,amount_eur,amount_xmr,fx_rate,created_at,expires_at")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (quoteError) throw quoteError;
+
       return adminJson({
+        quote: quote ?? null,
         receipts: (data ?? []).slice(0, PAGE_SIZE),
         hasMore: (data?.length ?? 0) > PAGE_SIZE,
         page,

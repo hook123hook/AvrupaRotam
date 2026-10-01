@@ -18,6 +18,17 @@ type Receipt = {
   created_at: string;
 };
 
+type PaymentQuote = {
+  user_id: string;
+  invoice_no: string;
+  address: string;
+  amount_eur: number | string;
+  amount_xmr: number | string;
+  fx_rate: number | string;
+  created_at: string;
+  expires_at: string;
+};
+
 const STATUS_NAMES: Record<string, string> = {
   under_review: "İnceleme bekliyor",
   approved: "Onaylandı",
@@ -55,6 +66,7 @@ export function PaymentReviewDashboard() {
   const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Account | null>(null);
+  const [quote, setQuote] = useState<PaymentQuote | null>(null);
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [receiptPage, setReceiptPage] = useState(0);
   const [receiptMore, setReceiptMore] = useState(false);
@@ -112,6 +124,7 @@ export function PaymentReviewDashboard() {
     const controller = new AbortController();
     const userId = selected.user_id;
     setReceiptLoading(true);
+    setQuote(null);
     setReceipts([]);
     setReceiptMore(false);
     setConfirmed(false);
@@ -124,6 +137,7 @@ export function PaymentReviewDashboard() {
         );
 
         const body = await response.json() as {
+          quote?: PaymentQuote | null;
           receipts?: Receipt[];
           hasMore?: boolean;
           error?: string;
@@ -132,6 +146,7 @@ export function PaymentReviewDashboard() {
         if (!response.ok) throw new Error(errorText(body.error));
 
         if (!controller.signal.aborted) {
+          setQuote(body.quote ?? null);
           setReceipts(body.receipts ?? []);
           setReceiptMore(body.hasMore ?? false);
         }
@@ -152,6 +167,9 @@ export function PaymentReviewDashboard() {
   }, [selected, receiptPage, revision]);
 
   function selectAccount(account: Account) {
+    setQuote(null);
+    setReceipts([]);
+    setReceiptLoading(true);
     setSelected(account);
     setReceiptPage(0);
     setConfirmed(false);
@@ -340,6 +358,34 @@ export function PaymentReviewDashboard() {
             {selected.suspension_reason && (
               <p>Askıya alma gerekçesi: {selected.suspension_reason}</p>
             )}
+
+            <h3>Beklenen ödeme bilgileri</h3>
+            {receiptLoading ? <p>Ödeme bilgileri yükleniyor…</p> :
+              quote && quote.user_id === selected.user_id ? (
+                <div style={{ padding: 16, background: "#f4f8f7", borderRadius: 8 }}>
+                  <p><strong>Ödeme referansı:</strong> {quote.invoice_no}</p>
+                  <p><strong>Hizmet bedeli:</strong> {quote.amount_eur} €</p>
+                  <p><strong>Beklenen XMR:</strong> {quote.amount_xmr} XMR</p>
+                  <p><strong>Teklif kuru:</strong> 1 XMR = {quote.fx_rate} €</p>
+                  <p><strong>Alım adresi:</strong></p>
+                  <code style={{ display: "block", whiteSpace: "normal", overflowWrap: "anywhere" }}>
+                    {quote.address}
+                  </code>
+                  <p>Teklif oluşturulma: {formatDate(quote.created_at)}</p>
+                  <p>Kur teklifinin son geçerlilik tarihi: {formatDate(quote.expires_at)}</p>
+                  <p>
+                    Teklif süresinin dolması, ödemenin yapılmadığı anlamına gelmez.
+                    Transfer zamanını, gelen tutarı ve alım adresini Feather üzerinden karşılaştırın.
+                    Bu ekran otomatik ödeme doğrulaması yapmaz.
+                  </p>
+                </div>
+              ) : (
+                <p role="alert" style={{ color: "#9f1239" }}>
+                  Kayıtlı kur teklifi bulunmuyor. Beklenen tutar bu ekrandan
+                  belirlenemiyor; gerçek ödeme ve 1.000 € karşılığı ayrıca
+                  kontrol edilmeden onay vermeyin.
+                </p>
+              )}
 
             <h3>Dekont geçmişi</h3>
             {receiptLoading ? <p>Dekontlar yükleniyor…</p> : receipts.length ? (
