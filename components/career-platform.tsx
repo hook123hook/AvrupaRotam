@@ -340,6 +340,14 @@ export function CareerPlatform({
               ))}
             </div>
 
+            {shown.length === 0 && (
+              <div className="empty-row" role="status">
+                {tr
+                  ? "Seçtiğiniz filtrelerde yayımlanmış ilan bulunmuyor."
+                  : "No published listings match your filters."}
+              </div>
+            )}
+
             <div className="jobs">
               {shown.map((job) => (
                 <article className="job" key={job.url + job.title}>
