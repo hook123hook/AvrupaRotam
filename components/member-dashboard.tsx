@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, type FormEvent } from "react";
+import { MemberPayment } from "@/components/member-payment";
 
 type Application = {
   id: string;
@@ -199,8 +200,8 @@ export function MemberDashboard({
             <h1>{tr ? "Kariyer dosyanız" : "Your career file"}</h1>
             <p>
               {tr
-                ? "Profilinizi, CV’nizi ve ön başvuru geçmişinizi yönetin."
-                : "Manage your profile, CV and initial application history."}
+                ? "Ödemenizi, profilinizi, CV’nizi ve ön başvuru geçmişinizi yönetin."
+                : "Manage your payment, profile, CV and initial application history."}
             </p>
           </div>
 
@@ -222,17 +223,24 @@ export function MemberDashboard({
 
         {profile ? (
           <>
-            <section className="account-card">
+            <MemberPayment locale={locale} />
+
+            <section
+              className="account-card"
+              style={{ marginTop: 24 }}
+            >
               <div>
                 <small>{tr ? "Aday" : "Candidate"}</small>
                 <strong>{profile.fullName}</strong>
                 <span>{profile.email}</span>
               </div>
+
               <div>
                 <small>{tr ? "Meslek" : "Occupation"}</small>
                 <strong>{profile.occupation}</strong>
                 <span>{profile.phone}</span>
               </div>
+
               <div>
                 <small>{tr ? "Kayıtlı CV" : "Stored CV"}</small>
                 <strong style={{ overflowWrap: "anywhere" }}>
@@ -363,6 +371,7 @@ export function MemberDashboard({
                       ? "Kayıtlı CV’nizi silmek istiyor musunuz? Profil bilgileriniz korunacak."
                       : "Delete your stored CV? Your profile details will be preserved."}
                   </p>
+
                   <div
                     style={{
                       display: "flex",
@@ -378,6 +387,7 @@ export function MemberDashboard({
                     >
                       {tr ? "Evet, CV’yi sil" : "Yes, delete CV"}
                     </button>
+
                     <button
                       className="btn secondary"
                       type="button"
@@ -414,11 +424,13 @@ export function MemberDashboard({
                 ? "Üyelik profilinizi tamamlayın"
                 : "Complete your membership profile"}
             </h2>
+
             <p>
               {tr
-                ? "Profil ve zorunlu CV kaydı için ana sayfadaki üyelik formunu kullanın."
-                : "Use the membership form on the home page to save your profile and required CV."}
+                ? "Profil ve zorunlu CV kaydı için ana sayfadaki üyelik formunu kullanın. Tamamladığınızda 1.000 € hizmet bedeli için ödeme ekranı açılacaktır."
+                : "Use the membership form on the home page to save your profile and CV. The €1,000 service payment screen will open after completion."}
             </p>
+
             <a
               className="btn primary"
               href={tr ? "/#membership" : "/en/#membership"}
@@ -451,6 +463,7 @@ export function MemberDashboard({
                       {application.country} · {application.profession}
                     </span>
                   </div>
+
                   <div>
                     <span className="status">
                       {tr ? "Alındı" : "Received"}

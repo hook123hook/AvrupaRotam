@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Bungora | EuropeRoute",
-  description: "European career opportunities, candidate membership and secure CV applications.",
+  title: "AvrupaRotam",
+  description:
+    "Avrupa’da kariyer fırsatları, aday üyeliği ve güvenli CV başvuruları.",
   icons: {
     icon: "/logo.svg",
     shortcut: "/logo.svg",
