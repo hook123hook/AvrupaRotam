@@ -370,6 +370,22 @@ async function main() {
       failures++;
 
       // Gizli anahtarları veya istek adreslerini yazdırma.
+      
+      const causeCode = error?.cause?.code;
+      console.error(JSON.stringify({
+        board: board.slug,
+        diagnostic: "sync_failure",
+        errorName: error?.name,
+        networkCode:
+          typeof causeCode === "string" &&
+          /^[A-Z0-9_]+$/.test(causeCode)
+            ? causeCode
+            : null,
+        invalidHeader: /header/i.test(error?.message ?? ""),
+        invalidUrl: /parse URL|Invalid URL/i.test(error?.message ?? ""),
+        fetchFailed: /fetch failed/i.test(error?.message ?? ""),
+      }));
+
       const safeCode = /^[A-Z0-9_]+$/.test(error.message)
         ? error.message
         : "SOURCE_SYNC_FAILED";
