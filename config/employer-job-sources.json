@@ -1,0 +1,16 @@
+[
+  {
+    "slug": "aleph",
+    "region": "global",
+    "company": "Aleph",
+    "enabled": true,
+    "permissionReference": "https://github.com/lever/postings-api#introduction"
+  },
+  {
+    "slug": "weloglobal",
+    "region": "global",
+    "company": "Welo Global",
+    "enabled": true,
+    "permissionReference": "https://github.com/lever/postings-api#introduction"
+  }
+]
