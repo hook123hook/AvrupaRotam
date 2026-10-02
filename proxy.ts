@@ -49,6 +49,8 @@ export const config = {
     "/account/:path*",
     "/en/account/:path*",
     "/login",
+    "/forgot-password",
+    "/reset-password",
     "/logout",
     "/auth/:path*",
     "/api/:path*",

@@ -1,231 +1,276 @@
+import { getStore } from "@netlify/blobs";
+import { getChatGPTUser } from "@/app/chatgpt-auth";
 import { getSupabase } from "@/db";
-import {
-  adminJson,
-  getPaymentAdmin,
-  isUuid,
-} from "@/lib/payment-admin";
 
 export const dynamic = "force-dynamic";
 
-const PAGE_SIZE = 20;
+const MAX_SIZE = 5 * 1024 * 1024;
 
-export async function GET(request: Request) {
+const TYPES = new Set([
+  "application/pdf",
+  "image/jpeg",
+  "image/png",
+]);
+
+const ACCESS_FIELDS =
+  "effective_status,can_use_service,first_receipt_at,review_deadline,reviewed_at,suspension_reason";
+
+type AccessRow = {
+  effective_status: string;
+  can_use_service: boolean;
+  first_receipt_at: string | null;
+  review_deadline: string | null;
+  reviewed_at: string | null;
+  suspension_reason: string | null;
+};
+
+function json(body: Record<string, unknown>, status = 200) {
+  return Response.json(body, {
+    status,
+    headers: {
+      "Cache-Control": "private, no-store",
+      Vary: "Cookie",
+    },
+  });
+}
+
+function publicAccess(row: AccessRow | null) {
+  return {
+    status: row?.effective_status ?? "awaiting_receipt",
+    canUseService: row?.can_use_service ?? false,
+    firstReceiptAt: row?.first_receipt_at ?? null,
+    reviewDeadline: row?.review_deadline ?? null,
+    reviewedAt: row?.reviewed_at ?? null,
+    suspensionReason: row?.suspension_reason ?? null,
+  };
+}
+
+async function state(userId: string) {
+  const db = getSupabase();
+
+  const { data: access, error: accessError } = await db
+    .from("member_service_access")
+    .select(ACCESS_FIELDS)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (accessError) throw accessError;
+
+  const { data: receipt, error: receiptError } = await db
+    .from("member_payment_receipts")
+    .select("id,file_name,transaction_id,created_at")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (receiptError) throw receiptError;
+
+  return {
+    access: publicAccess(access as AccessRow | null),
+    receipt: receipt
+      ? {
+          id: receipt.id,
+          fileName: receipt.file_name,
+          transactionId: receipt.transaction_id,
+          createdAt: receipt.created_at,
+        }
+      : null,
+  };
+}
+
+export async function GET() {
   try {
-    const admin = await getPaymentAdmin();
+    const user = await getChatGPTUser();
 
-    if (!admin) {
-      return adminJson({ error: "admin_required" }, 403);
+    if (!user) {
+      return json({ error: "authentication_required" }, 401);
     }
 
-    const url = new URL(request.url);
-    const supabase = getSupabase();
-    const userId = url.searchParams.get("userId");
-
-    // Bir kullanıcının dekont geçmişi.
-    if (userId) {
-      if (!isUuid(userId)) {
-        return adminJson({ error: "invalid_user" }, 400);
-      }
-
-      const rawPage = url.searchParams.get("page") ?? "0";
-
-      if (!/^\d{1,6}$/.test(rawPage)) {
-        return adminJson({ error: "invalid_page" }, 400);
-      }
-
-      const page = Number(rawPage);
-
-      const { data, error } = await supabase
-        .from("member_payment_receipts")
-        .select(
-          "id,file_name,transaction_id,content_type,file_size,created_at",
-        )
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false })
-        .order("id", { ascending: false })
-        .range(
-          page * PAGE_SIZE,
-          page * PAGE_SIZE + PAGE_SIZE,
-        );
-
-      if (error) throw error;
-
-      return adminJson({
-        receipts: (data ?? []).slice(0, PAGE_SIZE),
-        hasMore: (data?.length ?? 0) > PAGE_SIZE,
-        page,
-      });
-    }
-
-    const rawPage = url.searchParams.get("page") ?? "0";
-
-    if (!/^\d{1,6}$/.test(rawPage)) {
-      return adminJson({ error: "invalid_page" }, 400);
-    }
-
-    const page = Number(rawPage);
-    const status = url.searchParams.get("status") ?? "under_review";
-
-    const allowedStatuses = new Set([
-      "all",
-      "under_review",
-      "approved",
-      "suspended",
-      "awaiting_receipt",
-    ]);
-
-    if (!allowedStatuses.has(status)) {
-      return adminJson({ error: "invalid_status" }, 400);
-    }
-
-    let query = supabase
-      .from("member_service_access")
-      .select(
-        "user_id,effective_status,can_use_service,first_receipt_at,review_deadline,reviewed_at,suspension_reason",
-      );
-
-    if (status !== "all") {
-      query = query.eq("effective_status", status);
-    }
-
-    const { data, error } = await query
-      .order("review_deadline", {
-        ascending: true,
-        nullsFirst: false,
-      })
-      .order("user_id", { ascending: true })
-      .range(
-        page * PAGE_SIZE,
-        page * PAGE_SIZE + PAGE_SIZE,
-      );
-
-    if (error) throw error;
-
-    const accounts = (data ?? []).slice(0, PAGE_SIZE);
-    const userIds = accounts.map((account) => account.user_id);
-
-    if (!userIds.length) {
-      return adminJson({
-        accounts: [],
-        hasMore: false,
-        page,
-      });
-    }
-
-    const { data: profiles, error: profileError } = await supabase
-      .from("profiles")
-      .select("id,email,full_name")
-      .in("id", userIds);
-
-    if (profileError) throw profileError;
-
-    return adminJson({
-      accounts: accounts.map((account) => {
-        const profile = profiles?.find(
-          (item) => String(item.id) === account.user_id,
-        );
-
-        return {
-          ...account,
-          email: profile?.email ?? "",
-          full_name: profile?.full_name ?? "",
-        };
-      }),
-      hasMore: (data?.length ?? 0) > PAGE_SIZE,
-      page,
-    });
+    return json(await state(user.id));
   } catch {
-    console.error("admin_payment_list_failed");
-    return adminJson({ error: "service_unavailable" }, 503);
+    console.error("receipt_status_failed");
+    return json({ error: "service_unavailable" }, 503);
   }
 }
 
+async function validSignature(file: File) {
+  const bytes = new Uint8Array(
+    await file.slice(0, 8).arrayBuffer(),
+  );
+
+  if (file.type === "application/pdf") {
+    return [37, 80, 68, 70, 45].every(
+      (value, index) => bytes[index] === value,
+    );
+  }
+
+  if (file.type === "image/jpeg") {
+    return [255, 216, 255].every(
+      (value, index) => bytes[index] === value,
+    );
+  }
+
+  return [137, 80, 78, 71, 13, 10, 26, 10].every(
+    (value, index) => bytes[index] === value,
+  );
+}
+
 export async function POST(request: Request) {
-  if (request.headers.get("origin") !== new URL(request.url).origin) {
-    return adminJson({ error: "forbidden" }, 403);
+  if (
+    request.headers.get("origin") !==
+    new URL(request.url).origin
+  ) {
+    return json({ error: "forbidden" }, 403);
   }
 
   try {
-    const admin = await getPaymentAdmin();
+    const user = await getChatGPTUser();
 
-    if (!admin) {
-      return adminJson({ error: "admin_required" }, 403);
+    if (!user) {
+      return json({ error: "authentication_required" }, 401);
+    }
+
+    const length = Number(
+      request.headers.get("content-length"),
+    );
+
+    if (
+      Number.isFinite(length) &&
+      length > MAX_SIZE + 256 * 1024
+    ) {
+      return json({ error: "invalid_receipt" }, 413);
     }
 
     if (
       !request.headers
         .get("content-type")
         ?.toLowerCase()
-        .startsWith("application/json")
+        .startsWith("multipart/form-data")
     ) {
-      return adminJson({ error: "invalid_request" }, 400);
+      return json({ error: "invalid_request" }, 400);
     }
 
-    const text = await request.text();
-
-    if (text.length > 5000) {
-      return adminJson({ error: "invalid_request" }, 413);
-    }
-
-    let body: unknown;
+    let form: FormData;
 
     try {
-      body = JSON.parse(text);
+      form = await request.formData();
     } catch {
-      return adminJson({ error: "invalid_request" }, 400);
+      return json({ error: "invalid_request" }, 400);
     }
 
-    if (!body || typeof body !== "object" || Array.isArray(body)) {
-      return adminJson({ error: "invalid_request" }, 400);
-    }
+    const file = form.get("receipt");
+    const txid = String(form.get("transactionId") ?? "")
+      .trim()
+      .toLowerCase();
 
-    const input = body as Record<string, unknown>;
-    const userId = String(input.userId ?? "");
-    const action = String(input.action ?? "");
-    const reason = String(input.reason ?? "").trim();
+    if (!/^[0-9a-f]{64}$/.test(txid)) {
+      return json(
+        { error: "invalid_transaction_id" },
+        400,
+      );
+    }
 
     if (
-      !isUuid(userId) ||
-      !["approve", "suspend"].includes(action) ||
-      reason.length > 1000
+      !(file instanceof File) ||
+      !file.size ||
+      file.size > MAX_SIZE ||
+      !TYPES.has(file.type) ||
+      !(await validSignature(file))
     ) {
-      return adminJson({ error: "invalid_request" }, 400);
+      return json({ error: "invalid_receipt" }, 400);
     }
 
-    if (action === "suspend" && !reason) {
-      return adminJson({ error: "reason_required" }, 400);
+    const db = getSupabase();
+
+    const { data: profile, error: profileError } = await db
+      .from("profiles")
+      .select("id")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (profileError) throw profileError;
+
+    if (!profile) {
+      return json({ error: "profile_required" }, 409);
     }
 
-    const { data, error } = await getSupabase().rpc(
-      "review_member_payment",
+    const current = await state(user.id);
+
+    if (current.access.status === "approved") {
+      return json({ error: "already_approved" }, 409);
+    }
+
+    const receiptId = crypto.randomUUID();
+    const key = `receipts/${user.id}/${receiptId}`;
+
+    const filename =
+      file.name
+        .replace(/[\x00-\x1f\x7f/\\]/g, "_")
+        .trim()
+        .slice(0, 200) || "receipt";
+
+    await getStore("payment-receipts").set(key, file, {
+      metadata: {
+        ownerId: user.id,
+        contentType: file.type,
+        purpose: "payment-receipt",
+      },
+    });
+
+    const { error } = await db.rpc(
+      "submit_member_payment_receipt",
       {
-        // Yönetici kimliği istekten değil, oturumdan alınır.
-        p_admin_id: admin.id,
-        p_user_id: userId,
-        p_action: action,
-        p_reason: reason || null,
+        p_user_id: user.id,
+        p_receipt_id: receiptId,
+        p_transaction_id: txid,
+        p_blob_key: key,
+        p_file_name: filename,
+        p_content_type: file.type,
+        p_file_size: file.size,
       },
     );
 
     if (error) {
-      if (error.message.includes("RECEIPT_REQUIRED")) {
-        return adminJson({ error: "receipt_required" }, 409);
+      const known: [string, string, number][] = [
+        ["PROFILE_REQUIRED", "profile_required", 409],
+        ["ALREADY_APPROVED", "already_approved", 409],
+        [
+          "RECEIPT_LIMIT_REACHED",
+          "receipt_limit_reached",
+          429,
+        ],
+        [
+          "INVALID_TRANSACTION_ID",
+          "invalid_transaction_id",
+          400,
+        ],
+        ["INVALID_RECEIPT", "invalid_receipt", 400],
+      ];
+
+      const match = known.find(([marker]) =>
+        error.message.includes(marker),
+      );
+
+      if (match) {
+        try {
+          await getStore("payment-receipts").delete(key);
+        } catch {
+          console.error("receipt_cleanup_failed");
+        }
+
+        return json({ error: match[1] }, match[2]);
       }
 
-      if (error.message.includes("ACCOUNT_NOT_FOUND")) {
-        return adminJson({ error: "account_not_found" }, 404);
-      }
-
-      if (error.message.includes("ADMIN_REQUIRED")) {
-        return adminJson({ error: "admin_required" }, 403);
-      }
-
+      // Belirsiz ağ hatasında kaydedilmiş olabilecek
+      // dekont dosyasını silmeyiz.
       throw error;
     }
 
-    return adminJson({ ok: true, access: data?.[0] ?? null });
+    return json(await state(user.id));
   } catch {
-    console.error("admin_payment_review_failed");
-    return adminJson({ error: "service_unavailable" }, 503);
+    console.error("receipt_submission_failed");
+    return json({ error: "service_unavailable" }, 503);
   }
 }

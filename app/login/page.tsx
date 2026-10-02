@@ -115,6 +115,10 @@ export default function LoginPage() {
           </button>
         </form>
 
+        <p>
+          <a href="/forgot-password">Şifremi unuttum</a>
+        </p>
+
         <p role="status" aria-live="polite">
           {message}
         </p>
